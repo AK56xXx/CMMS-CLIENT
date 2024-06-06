@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Button } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native'; // Import useNavigation hook
 import { getAutoNotification } from '../api/maintenance';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-
-
-
-
-
+import Icon from 'react-native-vector-icons/Ionicons'; // Import vector icons
 
 const DemoScreen = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,123 +19,120 @@ const DemoScreen = () => {
 
   // Destructure first_name, last_name, and id from demoData
   const { id, fname, lname } = userData;
- // const demoData = route.params.demoData; // Get demoData from route params
 
-// const token = demoData.token;
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const data = await getAutoNotification(token, id);
+      setNotifData(data);
+    };
 
-
-
- useEffect(() => {
-  const fetchData = async () => {
-    const token = await AsyncStorage.getItem('token');
-    const data = await getAutoNotification(token, id);
-    setNotifData(data);
-  };
-
-  fetchData();
-}, [id]);
-
-const renderItem = ({ item }) => (
-  <View style={styles.item}>
-    <Text>{item.id}</Text>
-    <Text>{item.title}</Text>
-    <Text>{item.description}</Text>
-  </View>
-);
-
-
-
+    fetchData();
+  }, [id]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
-
   const handleLogout = async () => {
     try {
-  
-      
-  
       // Call the logout API
       const response = await axios.get('http://192.168.1.2:8081/logout');
-  
+
       // Handle API response (e.g., check for success)
       if (response.status === 200) {
         // Clear any stored user data or tokens
-        // ...
-  
         // Navigate to LoginScreen
         navigation.replace('Login', { screen: 'Login' });
       } else {
-        // Handle logout failure
-        // ...
         console.error('Logout failed:', response.data);
       }
     } catch (error) {
-      // Handle network or API errors
       console.error('Logout failed:', error);
-      // ...
     }
   };
 
-  // pass the user data to ProfileScreen
   const navigateProfile = () => {
     navigation.navigate('Profile', {
       id,
       fname,
-      lname});
+      lname,
+    });
   };
 
+  const handleAccept = (item) => {
+    // Implement accept logic here
+    console.log('Accepted:', item);
+  };
 
+  const handleDecline = (item) => {
+    // Implement decline logic here
+    console.log('Declined:', item);
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={styles.item}>
+      <Text style={styles.itemTitle}>{item.title}</Text>
+      <Text style={styles.itemDescription}>{item.description}</Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.acceptButton} onPress={() => handleAccept(item)}>
+          <Text style={styles.buttonText}>Accept</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.declineButton} onPress={() => handleDecline(item)}>
+          <Text style={styles.buttonText}>Decline</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={toggleMenu}>
-          <Text style={styles.menuButton}>{menuOpen ? 'Close Menu' : 'Open Menu'}</Text>
+          <Icon name={menuOpen ? 'close' : 'menu'} size={24} color="blue" />
         </TouchableOpacity>
         <Text style={styles.title}>Pura Overview</Text>
       </View>
 
       {menuOpen && (
         <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text onPress={navigateProfile}>Profile</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <Text>Devices</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <Text>Maintenances</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <Text>Open tickets</Text>
+          <View style={styles.profileContainer}>
+            <Image
+              source={{ uri: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }} // Replace with the actual profile image URL
+              style={styles.profileImage}
+            />
+            <Text style={styles.profileName}>{fname} {lname}</Text>
+          </View>
+          <TouchableOpacity style={styles.menuItem} onPress={navigateProfile}>
+            <Icon name="person" size={20} color="black" />
+            <Text style={styles.menuItemText}>Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem}>
-            <Text onPress={handleLogout}>Logout</Text>
+            <Icon name="hardware-chip" size={20} color="black" />
+            <Text style={styles.menuItemText}>Devices</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem}>
+            <Icon name="build" size={20} color="black" />
+            <Text style={styles.menuItemText}>Maintenances</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem}>
+            <Icon name="ticket" size={20} color="black" />
+            <Text style={styles.menuItemText}>Open tickets</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+            <Icon name="log-out" size={20} color="black" />
+            <Text style={styles.menuItemText}>Logout</Text>
           </TouchableOpacity>
         </View>
       )}
 
       <View style={styles.content}>
-        <Text>This is the content of the app.</Text>
-        <Text>Data from demo endpoint: {JSON.stringify(demoData)}</Text>
         <FlatList
           data={notifData}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()} // Adjust keyExtractor based on your data structure
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.listContent}
         />
-      </View>
-
-      <View style={styles.content}>
-        <Text>This is the content of the app.</Text>
-         {/* Display user details */}
-        <Text>User ID: {id}</Text>
-        <Text>First Name: {fname}</Text>
-        <Text>Last Name: {lname}</Text>
       </View>
     </View>
   );
@@ -167,24 +160,82 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  menuButton: {
-    fontSize: 16,
-    color: 'blue',
-  },
   menu: {
     backgroundColor: '#f0f0f0',
     padding: 10,
   },
   menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
+  menuItemText: {
+    marginLeft: 10,
+  },
+  profileContainer: {
+    alignItems: 'center',
+    padding: 10,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  profileName: {
+    marginTop: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  item: {
+    backgroundColor: '#fff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  itemTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  itemDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginVertical: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  acceptButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 5,
+  },
+  declineButton: {
+    backgroundColor: '#F44336',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
