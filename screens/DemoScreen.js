@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import { useNavigation, useRoute } from '@react-navigation/native'; // Import useNavigation hook
+import { getAutoNotification } from '../api/maintenance';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 
 
@@ -11,6 +13,42 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 const DemoScreen = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigation = useNavigation(); // Initialize navigation hook
+  const [notifData, setNotifData] = useState([]);
+
+  const route = useRoute(); // Access route parameters
+
+  //user and token data
+  const { combinedData } = route.params;
+  const { userData, demoData } = combinedData;
+
+  // Destructure first_name, last_name, and id from demoData
+  const { id, fname, lname } = userData;
+ // const demoData = route.params.demoData; // Get demoData from route params
+
+// const token = demoData.token;
+
+
+
+ useEffect(() => {
+  const fetchData = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const data = await getAutoNotification(token, id);
+    setNotifData(data);
+  };
+
+  fetchData();
+}, [id]);
+
+const renderItem = ({ item }) => (
+  <View style={styles.item}>
+    <Text>{item.id}</Text>
+    <Text>{item.title}</Text>
+    <Text>{item.description}</Text>
+  </View>
+);
+
+
+
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -44,6 +82,14 @@ const DemoScreen = () => {
     }
   };
 
+  // pass the user data to ProfileScreen
+  const navigateProfile = () => {
+    navigation.navigate('Profile', {
+      id,
+      fname,
+      lname});
+  };
+
 
 
   return (
@@ -52,16 +98,25 @@ const DemoScreen = () => {
         <TouchableOpacity onPress={toggleMenu}>
           <Text style={styles.menuButton}>{menuOpen ? 'Close Menu' : 'Open Menu'}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Welcome to My App</Text>
+        <Text style={styles.title}>Pura Overview</Text>
       </View>
 
       {menuOpen && (
         <View style={styles.menu}>
           <TouchableOpacity style={styles.menuItem}>
-            <Text>Menu Item 1</Text>
+            <Text onPress={navigateProfile}>Profile</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem}>
-            <Text>Menu Item 2</Text>
+            <Text>Devices</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem}>
+            <Text>Maintenances</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem}>
+            <Text>Open tickets</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem}>
             <Text onPress={handleLogout}>Logout</Text>
@@ -71,6 +126,20 @@ const DemoScreen = () => {
 
       <View style={styles.content}>
         <Text>This is the content of the app.</Text>
+        <Text>Data from demo endpoint: {JSON.stringify(demoData)}</Text>
+        <FlatList
+          data={notifData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()} // Adjust keyExtractor based on your data structure
+        />
+      </View>
+
+      <View style={styles.content}>
+        <Text>This is the content of the app.</Text>
+         {/* Display user details */}
+        <Text>User ID: {id}</Text>
+        <Text>First Name: {fname}</Text>
+        <Text>Last Name: {lname}</Text>
       </View>
     </View>
   );

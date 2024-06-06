@@ -3,6 +3,7 @@ import { View, TextInput, Button, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+//import { login } from '../api/auth'; //import auth apis
 
 const LoginScreen = () => {
   // State variables to store username and password
@@ -29,15 +30,30 @@ const LoginScreen = () => {
       // Handle successful login
       console.log('Login successful!');
 
-      // Call the API GET http://192.168.1.2:8081/demo
-      const demoResponse = await axios.get('http://192.168.1.2:8081/demo', {
+      const userDataResponse = await axios.get(`http://192.168.1.2:8081/api/v1/users/token/${token}`, {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
         },
       });
 
+      const userData = userDataResponse.data;
+
+      const demoResponse = await axios.get('http://192.168.1.2:8081/app/demo', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Combine userData with demoResponse data
+      const combinedData = {
+        userData,
+        demoData: demoResponse.data,
+      };
+
+      navigation.replace('Home', { combinedData, token });
+
       // Replace LoginScreen with DemoScreen upon successful login and pass the response data
-        navigation.replace('Home', { demoData: demoResponse.data});
+      //  navigation.replace('Home', { demoData: demoResponse.data});
       // (*) better not use Navigation.navigate here because it can goes back to LoginScreen
       // navigation.navigate('Home', { demoData: demoResponse.data }); 
 
