@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Button } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native'; // Import useNavigation hook
-import { getAutoNotification } from '../api/maintenance';
+import { getAutoNotification, addAutoMaintenance } from '../api/maintenance';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import Icon from 'react-native-vector-icons/Ionicons'; // Import vector icons
+
 
 const DemoScreen = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigation = useNavigation(); // Initialize navigation hook
   const [notifData, setNotifData] = useState([]);
+  
 
   const route = useRoute(); // Access route parameters
 
@@ -20,15 +22,24 @@ const DemoScreen = () => {
   // Destructure first_name, last_name, and id from demoData
   const { id, fname, lname } = userData;
 
+  // Add & fetch auto notif
   useEffect(() => {
-    const fetchData = async () => {
-      const token = await AsyncStorage.getItem('token');
-      const data = await getAutoNotification(token, id);
-      setNotifData(data);
+    const addMaintenanceAndFetchNotifications = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          await addAutoMaintenance(token, id);
+          const data = await getAutoNotification(token, id);
+          setNotifData(data);
+        }
+      } catch (error) {
+        console.error('Error adding maintenance or fetching notifications:', error);
+      }
     };
 
-    fetchData();
+    addMaintenanceAndFetchNotifications();
   }, [id]);
+
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);

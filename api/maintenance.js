@@ -13,3 +13,16 @@ export const getAutoNotification = async (token, userId) => {
     return response.data;
   };
 
+  export const addAutoMaintenance = async (token, userId) => {
+    const response = await axios.post(`${API_BASE_URL}/api/v1/maintenance/auto-add/${userId}`,{}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    return response.data;
+  };
+
+
+
+

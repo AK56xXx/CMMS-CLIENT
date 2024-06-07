@@ -3,7 +3,7 @@ import { View, TextInput, Button, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
-//import { login } from '../api/auth'; //import auth apis
+//import auth apis
 
 const LoginScreen = () => {
   // State variables to store username and password
@@ -30,6 +30,7 @@ const LoginScreen = () => {
       // Handle successful login
       console.log('Login successful!');
 
+      // get the user (username) data by token
       const userDataResponse = await axios.get(`http://192.168.1.2:8081/api/v1/users/token/${token}`, {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -43,6 +44,9 @@ const LoginScreen = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      
+      
 
       // Combine userData with demoResponse data
       const combinedData = {
