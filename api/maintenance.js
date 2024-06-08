@@ -24,5 +24,20 @@ export const getAutoNotification = async (token, userId) => {
   };
 
 
+  export const editMaintenance = async (token, updateData) => {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/maintenance/update`,
+      updateData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  };
+
+
 
 

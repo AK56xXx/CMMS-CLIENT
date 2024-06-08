@@ -1,89 +1,102 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert } from 'react-native';
+import { View, StyleSheet, Alert, Image, Text } from 'react-native';
+import { TextInput, Button, Title, ActivityIndicator, Colors } from 'react-native-paper';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
-//import auth apis
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import pura from '../assets/pura.jpeg'; // Import image
 
 const LoginScreen = () => {
-  // State variables to store username and password
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const navigation = useNavigation(); // Initialize navigation hook
+  const navigation = useNavigation();
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
-      // Send POST request using axios
-      const response = await axios.post('http://192.168.1.2:8081/login', {
-        username,
-        password,
-      });
-
-      // Extract token from response
+      const response = await axios.post('http://192.168.1.2:8081/login', { username, password });
       const token = response.data.token;
-
-      // Store token in AsyncStorage
       await AsyncStorage.setItem('token', token);
       console.log('Token stored in AsyncStorage:', token);
 
-      // Handle successful login
-      console.log('Login successful!');
-
-      // get the user (username) data by token
       const userDataResponse = await axios.get(`http://192.168.1.2:8081/api/v1/users/token/${token}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const userData = userDataResponse.data;
-
       const demoResponse = await axios.get('http://192.168.1.2:8081/app/demo', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      
-      
-
-      // Combine userData with demoResponse data
-      const combinedData = {
-        userData,
-        demoData: demoResponse.data,
-      };
-
+      const combinedData = { userData, demoData: demoResponse.data };
       navigation.replace('Home', { combinedData, token });
-
-      // Replace LoginScreen with DemoScreen upon successful login and pass the response data
-      //  navigation.replace('Home', { demoData: demoResponse.data});
-      // (*) better not use Navigation.navigate here because it can goes back to LoginScreen
-      // navigation.navigate('Home', { demoData: demoResponse.data }); 
-
     } catch (error) {
       console.error('Error logging in:', error);
-      // Display informative error message
-      Alert.alert('Login Failed', error.message || 'Invalid username or password');
+      Alert.alert('Invalid username or password');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={{ marginTop: 20 }}>
+    <View style={styles.container}>
+
+     
+      <Image
+        source={pura} // Use the imported image
+        style={styles.pura}
+      />
+    
+      <Title style={styles.title}>Login</Title>
       <TextInput
-        placeholder="Username"
+        label="Username"
         value={username}
-        onChangeText={text => setUsername(text)}
+        onChangeText={setUsername}
+        style={styles.input}
+        mode="outlined"
       />
       <TextInput
-        placeholder="Password"
+        label="Password"
         value={password}
-        onChangeText={text => setPassword(text)}
+        onChangeText={setPassword}
         secureTextEntry
+        style={styles.input}
+        mode="outlined"
       />
-      <Button title="Login" onPress={handleLogin} />
+      <Button mode="contained" onPress={handleLogin} style={styles.button}>
+        {loading ? <ActivityIndicator color /> : 'Login'}
+      </Button>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  input: {
+    marginBottom: 10,
+  },
+  button: {
+    marginTop: 10,
+  },
+
+  pura: {
+    width: 350, // Adjust width and height as needed
+    height: 350,
+    resizeMode: 'contain', // Maintain aspect ratio
+    marginBottom: 100, // Adjust margin as needed
+    marginLeft: 75,
+  },
+});
 
 export default LoginScreen;

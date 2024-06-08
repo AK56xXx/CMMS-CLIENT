@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Button } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Button, Alert } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native'; // Import useNavigation hook
-import { getAutoNotification, addAutoMaintenance } from '../api/maintenance';
+import { getAutoNotification, addAutoMaintenance, editMaintenance } from '../api/maintenance';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import Icon from 'react-native-vector-icons/Ionicons'; // Import vector icons
 
@@ -76,9 +76,36 @@ const DemoScreen = () => {
     console.log('Accepted:', item);
   };
 
-  const handleDecline = (item) => {
-    // Implement decline logic here
-    console.log('Declined:', item);
+  const handleDecline = async (item) => {
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you want to decline this maintenance?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Decline cancelled"),
+          style: "cancel"
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('token');
+              const updateData = { ...item, userResponse: 'REJECTED' }; // Update the object with the new status
+              const response = await editMaintenance(token, updateData);
+              console.log('Declined:', response);
+              // Optionally, update the local state to reflect the declined status
+              setNotifData((prevData) =>
+                prevData.filter((notif) => notif.id !== item.id)
+              );
+            } catch (error) {
+              console.error('Error declining maintenance:', error);
+            }
+          }
+        }
+      ],
+      { cancelable: false }
+    );
   };
 
   const renderItem = ({ item }) => (
