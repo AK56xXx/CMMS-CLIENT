@@ -1,46 +1,48 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Button, TextInput, Card, Avatar } from 'react-native-paper';
+import React, { useState, useEffect } from'react';
+import { View, StyleSheet, ScrollView } from'react-native';
+import { Text, Button, TextInput, Card, Avatar } from'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { editUser } from '../api/client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { editUser, getUser } from '../api/client';
 
 const ProfileScreen = () => {
   const route = useRoute();
-  const { user } = route.params;
+  const { id } = route.params;
 
-  const [firstName, setFirstName] = useState(user.fname);
-  const [lastName, setLastName] = useState(user.lname);
-  const [phoneNbr, setPhoneNbr] = useState(user.phone);
-  const [emailAdr, setEmailAdr] = useState(user.email);
+  const [user, setUser] = useState({
+    fname: '',
+    lname: '',
+    phone: '',
+    email: '',
+    photo: '',
+  });
 
-
-  const [profilePhoto, setProfilePhoto] = useState(user.photo);
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const userData = await getUser(token, id);
+        setUser(userData);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchUserData();
+  }, [id]);
 
   const handleSave = async () => {
     try {
-      const updatedUser = {
-        ...user,
-        fname: firstName,
-        lname: lastName,
-        phone: phoneNbr,
-        email: emailAdr,
-      };
-
-      // get token
+      const updatedUser = {...user };
       const token = await AsyncStorage.getItem('token');
-
-      // Call editUser API to update user information
       await editUser(token, updatedUser);
-
-      console.log('Saved:');
-      setIsEditing(false); // Disable editing after saving
+      console.log('Saved');
+      setIsEditing(false);
     } catch (error) {
       console.error('Error saving profile:', error);
     }
   };
-
 
   const handleEditPhoto = () => {
     // Implement edit photo logic here
@@ -58,7 +60,7 @@ const ProfileScreen = () => {
           <View style={styles.avatarContainer}>
             <Avatar.Image
               size={100}
-              source={{ uri: profilePhoto || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
+              source={{ uri: user.photo || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
             />
             <Button
               mode="contained"
@@ -69,44 +71,44 @@ const ProfileScreen = () => {
             </Button>
           </View>
 
-          <Text style={styles.label}>User ID: {user.id}</Text>
+          <Text style={styles.label}>User ID: {id}</Text>
 
           <TextInput
             label="First Name"
-            value={firstName}
-            onChangeText={setFirstName}
+            value={user.fname}
+            onChangeText={(text) => setUser({...user, fname: text })}
             mode="outlined"
             style={styles.input}
-            editable={isEditing} // Control whether the input is editable
+            editable={isEditing}
           />
           <TextInput
             label="Last Name"
-            value={lastName}
-            onChangeText={setLastName}
+            value={user.lname}
+            onChangeText={(text) => setUser({...user, lname: text })}
             mode="outlined"
             style={styles.input}
-            editable={isEditing} // Control whether the input is editable
+            editable={isEditing}
           />
 
           <TextInput
             label="Phone"
-            value={phoneNbr}
-            onChangeText={setPhoneNbr}
+            value={user.phone}
+            onChangeText={(text) => setUser({...user, phone: text })}
             mode="outlined"
             style={styles.input}
-            editable={isEditing} // Control whether the input is editable
+            editable={isEditing}
           />
 
           <TextInput
             label="Email"
-            value={emailAdr}
-            onChangeText={setEmailAdr}
+            value={user.email}
+            onChangeText={(text) => setUser({...user, email: text })}
             mode="outlined"
             style={styles.input}
-            editable={isEditing} // Control whether the input is editable
+            editable={isEditing}
           />
 
-          {isEditing ? (
+          {isEditing? (
             <Button
               mode="contained"
               onPress={handleSave}

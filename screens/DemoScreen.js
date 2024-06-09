@@ -11,8 +11,7 @@ const DemoScreen = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigation = useNavigation(); // Initialize navigation hook
   const [notifData, setNotifData] = useState([]);
-
-
+  
 
   const route = useRoute(); // Access route parameters
 
@@ -64,11 +63,11 @@ const DemoScreen = () => {
     }
   };
 
-  
-  // navigate to profileScreen with the data of the user
   const navigateProfile = () => {
     navigation.navigate('Profile', {
-      user: userData,
+      id,
+      fname,
+      lname,
     });
   };
 

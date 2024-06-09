@@ -15,3 +15,17 @@ export const editUser = async (token, updateData) => {
     );
     return response.data;
   };
+
+
+  export const getUser = async (token, id) => {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/v1/users/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  };
