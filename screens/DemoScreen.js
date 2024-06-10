@@ -71,8 +71,21 @@ const DemoScreen = () => {
     });
   };
 
+  const navigateMaintenance = () => {
+    navigation.navigate('Maintenance', {
+      user: userData,
+    });
+  };
+
   const handleAccept = (item) => {
     // Implement accept logic here
+    navigation.navigate('Configure', {
+      item : item,
+      client : userData
+    });
+
+
+
     console.log('Accepted:', item);
   };
 
@@ -149,7 +162,7 @@ const DemoScreen = () => {
             <Icon name="hardware-chip" size={20} color="black" />
             <Text style={styles.menuItemText}>Devices</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={navigateMaintenance} >
             <Icon name="build" size={20} color="black" />
             <Text style={styles.menuItemText}>Maintenances</Text>
           </TouchableOpacity>

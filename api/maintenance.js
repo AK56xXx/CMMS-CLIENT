@@ -40,5 +40,44 @@ export const getAutoNotification = async (token, userId) => {
   };
 
 
+  export const getAvailableTechnician = async (token, date) => {
+    const response = await axios.get(`${API_BASE_URL}/api/v1/maintenance/available-technicians/${date}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  
+    return response.data;
+  };
+
+  export const getApprovedMaintenances = async (token, idUser) => {
+    const response = await axios.get(`${API_BASE_URL}/api/v1/maintenance/approved/client/${idUser}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  
+    return response.data;
+  };
+
+
+  export const createMaintenance = async (token, updateData) => {
+    const response = await axios.put(
+      `${API_BASE_URL}/api/v1/maintenance/add`,
+      updateData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+         
+        },
+      }
+    );
+    return response.data;
+  };
+
+
+
+
+
 
 
