@@ -112,8 +112,7 @@ const ViewMntScreen = () => {
           <Text style={styles.label}>Device:</Text>
           {device ? (
             <View style={styles.deviceContainer}>
-              <Text>Id: {device.id}</Text>
-              <Text>Name: {device.name}</Text>
+              <Text>Name: {device.name}{device.id}</Text>
               <Text>Serial: {device.serial}</Text>
               <Text>Description: {device.description}</Text>
               <Text>IP Address: {device.ipAddress}</Text>

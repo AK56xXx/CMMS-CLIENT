@@ -10,6 +10,9 @@ import ProfileScreen from './screens/ProfileScreen'; // Import ProfileScreen com
 import AcceptScreen from './screens/AcceptScreen'; // Import AcceptScreen component
 import MaintenanceScreen from './screens/MaintenanceScreen'; // Import MaintenanceScreen component
 import ViewMntScreen from './screens/ViewMntScreen'; // Import ViewMntScreen component
+import DeviceScreen from './screens/DeviceScreen'; // Import DeviceScreen component
+import DeviceDetailScreen from './screens/DeviceDetailScreen'; // Import DeviceDetailScreen component
+import TicketScreen from './screens/TicketScreen';
 
 const Stack = createNativeStackNavigator() // Create a Stack navigator
 
@@ -28,6 +31,9 @@ export default function App() {
           <Stack.Screen name="Configure" component={AcceptScreen} />
           <Stack.Screen name="Maintenance" component={MaintenanceScreen} />
           <Stack.Screen name="View maintenance details" component={ViewMntScreen} />
+          <Stack.Screen name="Device" component={DeviceScreen} />
+          <Stack.Screen name="Device detail" component={DeviceDetailScreen} />
+          <Stack.Screen name="Ticket" component={TicketScreen} />
         </Stack.Navigator>
       </NavigationContainer>
 

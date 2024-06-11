@@ -78,6 +78,20 @@ const DemoScreen = () => {
     });
   };
 
+
+  const navigateDevice = () => {
+    navigation.navigate('Device', {
+      userData,
+    });
+  };
+
+  const navigateTicket = () => {
+    navigation.navigate('Ticket', {
+      userData,
+    });
+  };
+
+
   const handleAccept = (item) => {
     // Implement accept logic here
     navigation.navigate('Configure', {
@@ -159,7 +173,7 @@ const DemoScreen = () => {
             <Icon name="person" size={20} color="black" />
             <Text style={styles.menuItemText}>Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={navigateDevice}>
             <Icon name="hardware-chip" size={20} color="black" />
             <Text style={styles.menuItemText}>Devices</Text>
           </TouchableOpacity>
@@ -167,7 +181,7 @@ const DemoScreen = () => {
             <Icon name="build" size={20} color="black" />
             <Text style={styles.menuItemText}>Maintenances</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={navigateTicket}>
             <Icon name="ticket" size={20} color="black" />
             <Text style={styles.menuItemText}>Open tickets</Text>
           </TouchableOpacity>
