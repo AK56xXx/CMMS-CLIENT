@@ -76,6 +76,16 @@ export const getAutoNotification = async (token, userId) => {
   };
 
 
+  export const getMaintenanceById = async (token, id) => {
+    const response = await axios.get(`${API_BASE_URL}/api/v1/maintenance/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  
+    return response.data;
+  };
+
 
 
 

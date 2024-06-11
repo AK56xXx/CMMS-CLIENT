@@ -1,57 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, FlatList } from 'react-native';
-import { Text, Button, Card, Avatar, List } from 'react-native-paper';
+import React, { useState, useEffect} from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
+import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAvailableTechnician } from '../api/maintenance';
-import { editMaintenance } from '../api/maintenance';
+import { getApprovedMaintenances } from '../api/maintenance';
 
 const MaintenanceScreen = () => {
-  const route = useRoute();
+  const [maintenanceList, setMaintenanceList] = useState([]);
   const navigation = useNavigation();
-  const { user } = route.params;
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isDateValid, setIsDateValid] = useState(false);
-  const [showPicker, setShowPicker] = useState(false);
-  const [technicians, setTechnicians] = useState([]);
-/*
-    useEffect(() => {
+  const route = useRoute();
+  const { item, combinedData, userData } = route.params;
 
-      const fetchMaintennances = async () => {
-        try {
-          const token = await AsyncStorage.getItem('token');
-          if (token) {
-            const techData = await getAvailableTechnician(token, selectedDate);
-            console.log(techData);
-            setTechnicians(techData);
-          } else {
-            Alert.alert('Error', 'User not authenticated');
-          }
-        } catch (error) {
-          console.error('Error fetching technicians:', error);
-          Alert.alert('Error', 'Error fetching technicians');
-        }
-      };
+  useEffect(() => {
+    const fetchMaintenances = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token'); // Get token from AsyncStorage or context
+        const idUser = userData.id; // Get user id from wherever it's stored
+        const maintenances = await getApprovedMaintenances(token, idUser);
+        setMaintenanceList(maintenances);
+      } catch (error) {
+        console.error('Error fetching maintenances:', error);
+        Alert.alert('Error', 'Failed to fetch maintenances');
+      }
+    };
 
-      fetchMaintennances();
-    
-    });
-*/
+    fetchMaintenances();
+  }, []);
+
+  const handleMaintenancePress = (maintenance) => {
+    // Navigate to the detail screen with maintenance data
+    navigation.navigate('View maintenance details', { maintenance });
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles.item} onPress={() => handleMaintenancePress(item)}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.description}>{item.description}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-    
-    
-  </View>
-
-)};
+      <FlatList
+        data={maintenanceList}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContent}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 16,
+    backgroundColor: '#fff',
+  },
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+  title: {
+    fontSize: 20,
+  },
+  description: {
+    fontSize: 16,
+    marginTop: 5,
+  },
+  listContent: {
+    paddingBottom: 20,
   },
 });
 

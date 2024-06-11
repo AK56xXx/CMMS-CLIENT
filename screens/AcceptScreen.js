@@ -9,13 +9,16 @@ import { getAvailableTechnician, editMaintenance, createMaintenance } from '../a
 const AcceptScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { item } = route.params;
+  const { item, combinedData, userData } = route.params;
+
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDateValid, setIsDateValid] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [technicians, setTechnicians] = useState([]);
   const [selectedTechnicianId, setSelectedTechnicianId] = useState(null);
+
+  const [notifData, setNotifData] = useState([]);
 
   useEffect(() => {
     if (isDateValid) {
@@ -72,7 +75,7 @@ const AcceptScreen = () => {
       [
         {
           text: "Cancel",
-          onPress: () => console.log("Decline cancelled"),
+          onPress: () => console.log("Submit cancelled"),
           style: "cancel"
         },
         {
@@ -88,7 +91,16 @@ const AcceptScreen = () => {
                 technician: { id: selectedTechnicianId } // Add selected technician ID
               };
               const response = await createMaintenance(token, updateData);
-           //   navigation.navigate('Maintenance');
+
+              navigation.navigate('Maintenance', {
+
+                item,
+
+                userData,
+       
+                
+                
+              });
               console.log('Submitted:', response);
             } catch (error) {
               console.error('Error submitting maintenance:', error);

@@ -15,9 +15,10 @@ const DemoScreen = () => {
 
   const route = useRoute(); // Access route parameters
 
-  //user and token data
-  const { combinedData } = route.params;
-  const { userData, demoData } = combinedData;
+  const combinedData = route.params?.combinedData;
+  const userData = combinedData.userData;
+  const demoData = combinedData.demoData;
+
 
   // Destructure first_name, last_name, and id from demoData
   const { id, fname, lname } = userData;
@@ -28,8 +29,8 @@ const DemoScreen = () => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          await addAutoMaintenance(token, id);
-          const data = await getAutoNotification(token, id);
+          await addAutoMaintenance(token, userData.id);
+          const data = await getAutoNotification(token, userData.id);
           setNotifData(data);
         }
       } catch (error) {
@@ -38,7 +39,7 @@ const DemoScreen = () => {
     };
 
     addMaintenanceAndFetchNotifications();
-  }, [id]);
+  }, [userData.id]);
 
 
   const toggleMenu = () => {
@@ -73,15 +74,15 @@ const DemoScreen = () => {
 
   const navigateMaintenance = () => {
     navigation.navigate('Maintenance', {
-      user: userData,
+      userData,
     });
   };
 
   const handleAccept = (item) => {
     // Implement accept logic here
     navigation.navigate('Configure', {
-      item : item,
-      client : userData
+      item,
+      client: userData
     });
 
 
