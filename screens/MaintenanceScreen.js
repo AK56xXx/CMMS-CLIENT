@@ -1,35 +1,37 @@
-import React, { useState, useEffect} from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Alert, FlatList } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getApprovedMaintenances } from '../api/maintenance';
 
 const MaintenanceScreen = () => {
   const [maintenanceList, setMaintenanceList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-
   const route = useRoute();
-  const { item, combinedData, userData } = route.params;
+  const { userData } = route.params || {};
 
   useEffect(() => {
     const fetchMaintenances = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token'); // Get token from AsyncStorage or context
-        const idUser = userData.id; // Get user id from wherever it's stored
-        const maintenances = await getApprovedMaintenances(token, idUser);
-        setMaintenanceList(maintenances);
-      } catch (error) {
-        console.error('Error fetching maintenances:', error);
-        Alert.alert('Error', 'Failed to fetch maintenances');
-      }
+        try {
+          const token = await AsyncStorage.getItem('token');
+          const idUser = userData.id;
+          const maintenances = await getApprovedMaintenances(token, idUser);
+          setMaintenanceList(maintenances);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching maintenances:', error);
+          Alert.alert('Error', 'Failed to fetch maintenances');
+          setLoading(false);
+        }
+   
     };
 
     fetchMaintenances();
   }, []);
 
   const handleMaintenancePress = (maintenance) => {
-    // Navigate to the detail screen with maintenance data
     navigation.navigate('View maintenance details', { maintenance });
   };
 
@@ -39,6 +41,14 @@ const MaintenanceScreen = () => {
       <Text style={styles.description}>{item.description}</Text>
     </TouchableOpacity>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -56,6 +66,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   item: {
     backgroundColor: '#f9c2ff',

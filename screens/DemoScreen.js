@@ -64,6 +64,8 @@ const DemoScreen = () => {
     }
   };
 
+  // Navigation Functions
+
   const navigateProfile = () => {
     navigation.navigate('Profile', {
       id,
@@ -90,6 +92,9 @@ const DemoScreen = () => {
       userData,
     });
   };
+
+
+  // ***************************************
 
 
   const handleAccept = (item) => {

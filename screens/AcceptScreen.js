@@ -91,17 +91,16 @@ const AcceptScreen = () => {
                 technician: { id: selectedTechnicianId } // Add selected technician ID
               };
               const response = await createMaintenance(token, updateData);
-
+             
+              // getting the client id from item (maintenance), it didn't work from userData
               navigation.navigate('Maintenance', {
-
-                item,
-
-                userData,
-       
-                
-                
+                userData: item.client,
               });
+              
+            
+
               console.log('Submitted:', response);
+            
             } catch (error) {
               console.error('Error submitting maintenance:', error);
             }
