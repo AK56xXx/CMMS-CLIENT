@@ -12,6 +12,8 @@ const MaintenanceScreen = () => {
   const route = useRoute();
   const { userData } = route.params || {};
 
+
+
   useEffect(() => {
     const fetchMaintenances = async () => {
         try {
@@ -50,8 +52,16 @@ const MaintenanceScreen = () => {
     );
   }
 
+  
   return (
     <View style={styles.container}>
+
+      <View style={styles.header}>
+
+        
+       
+      </View>
+
       <FlatList
         data={maintenanceList}
         renderItem={renderItem}

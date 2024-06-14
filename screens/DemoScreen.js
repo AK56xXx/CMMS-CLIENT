@@ -1,46 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Button, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Alert } from 'react-native';
 import axios from 'axios';
-import { useNavigation, useRoute } from '@react-navigation/native'; // Import useNavigation hook
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { getAutoNotification, addAutoMaintenance, editMaintenance } from '../api/maintenance';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import Icon from 'react-native-vector-icons/Ionicons'; // Import vector icons
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const DemoScreen = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigation = useNavigation(); // Initialize navigation hook
   const [notifData, setNotifData] = useState([]);
-  
+  const navigation = useNavigation();
+  const route = useRoute();
+  const combinedData = route.params?.combinedData || {};
+  const userData = combinedData.userData || {};
+  const demoData = combinedData.demoData || {};
 
-  const route = useRoute(); // Access route parameters
-
-  const combinedData = route.params?.combinedData;
-  const userData = combinedData.userData;
-  const demoData = combinedData.demoData;
-
-
-  // Destructure first_name, last_name, and id from demoData
   const { id, fname, lname } = userData;
 
-  // Add & fetch auto notif
-  useEffect(() => {
-    const addMaintenanceAndFetchNotifications = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (token) {
-          await addAutoMaintenance(token, userData.id);
-          const data = await getAutoNotification(token, userData.id);
-          setNotifData(data);
-        }
-      } catch (error) {
-        console.error('Error adding maintenance or fetching notifications:', error);
+  const fetchNotifications = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        await addAutoMaintenance(token, userData.id);
+        const data = await getAutoNotification(token, userData.id);
+        setNotifData(data);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
 
-    addMaintenanceAndFetchNotifications();
-  }, [userData.id]);
-
+  useFocusEffect(
+    useCallback(() => {
+      fetchNotifications();
+    }, [])
+  );
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -48,13 +42,8 @@ const DemoScreen = () => {
 
   const handleLogout = async () => {
     try {
-      // Call the logout API
       const response = await axios.get('http://192.168.1.2:8081/logout');
-
-      // Handle API response (e.g., check for success)
       if (response.status === 200) {
-        // Clear any stored user data or tokens
-        // Navigate to LoginScreen
         navigation.replace('Login', { screen: 'Login' });
       } else {
         console.error('Logout failed:', response.data);
@@ -64,48 +53,24 @@ const DemoScreen = () => {
     }
   };
 
-  // Navigation Functions
-
   const navigateProfile = () => {
-    navigation.navigate('Profile', {
-      id,
-      fname,
-      lname,
-    });
+    navigation.navigate('Profile', { id, fname, lname });
   };
 
   const navigateMaintenance = () => {
-    navigation.navigate('Maintenance', {
-      userData,
-    });
+    navigation.navigate('Maintenance', { userData });
   };
 
-
   const navigateDevice = () => {
-    navigation.navigate('Device', {
-      userData,
-    });
+    navigation.navigate('Device', { userData });
   };
 
   const navigateTicket = () => {
-    navigation.navigate('Ticket', {
-      userData,
-    });
+    navigation.navigate('Ticket', { userData });
   };
 
-
-  // ***************************************
-
-
   const handleAccept = (item) => {
-    // Implement accept logic here
-    navigation.navigate('Configure', {
-      item,
-      client: userData
-    });
-
-
-
+    navigation.navigate('Configure', { item, client: userData });
     console.log('Accepted:', item);
   };
 
@@ -124,13 +89,10 @@ const DemoScreen = () => {
           onPress: async () => {
             try {
               const token = await AsyncStorage.getItem('token');
-              const updateData = { ...item, userResponse: 'REJECTED' }; // Update the object with the new status
+              const updateData = { ...item, userResponse: 'REJECTED' };
               const response = await editMaintenance(token, updateData);
               console.log('Declined:', response);
-              // Optionally, update the local state to reflect the declined status
-              setNotifData((prevData) =>
-                prevData.filter((notif) => notif.id !== item.id)
-              );
+              setNotifData((prevData) => prevData.filter((notif) => notif.id !== item.id));
             } catch (error) {
               console.error('Error declining maintenance:', error);
             }
@@ -169,7 +131,7 @@ const DemoScreen = () => {
         <View style={styles.menu}>
           <View style={styles.profileContainer}>
             <Image
-              source={{ uri: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }} // Replace with the actual profile image URL
+              source={{ uri: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
               style={styles.profileImage}
             />
             <Text style={styles.profileName}>{fname} {lname}</Text>
@@ -182,7 +144,7 @@ const DemoScreen = () => {
             <Icon name="hardware-chip" size={20} color="black" />
             <Text style={styles.menuItemText}>Devices</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={navigateMaintenance} >
+          <TouchableOpacity style={styles.menuItem} onPress={navigateMaintenance}>
             <Icon name="build" size={20} color="black" />
             <Text style={styles.menuItemText}>Maintenances</Text>
           </TouchableOpacity>
@@ -208,11 +170,6 @@ const DemoScreen = () => {
     </View>
   );
 };
-
-// Set navigation options to disable going back
-DemoScreen.navigationOptions = ({ navigation }) => ({
-  headerLeft: () => null,
-});
 
 const styles = StyleSheet.create({
   container: {

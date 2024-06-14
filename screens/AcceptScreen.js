@@ -9,7 +9,7 @@ import { getAvailableTechnician, editMaintenance, createMaintenance } from '../a
 const AcceptScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { item, combinedData, userData } = route.params;
+  const { item, combinedData, client } = route.params;
 
 
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -92,9 +92,11 @@ const AcceptScreen = () => {
               };
               const response = await createMaintenance(token, updateData);
              
-              // getting the client id from item (maintenance), it didn't work from userData
-              navigation.navigate('Maintenance', {
-                userData: item.client,
+              // getting the client id from item (maintenance) when navigating to maintenance screen
+              // you need to indicate the combinedData that caontain the userData for the navigation to Home screen to work
+              navigation.navigate('Home', {
+                  combinedData: {userData: client}, // navigate to home screen
+             //   userData: item.client, //navigate to maintenance screen 
               });
               
             
