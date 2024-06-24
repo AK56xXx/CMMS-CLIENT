@@ -3,12 +3,18 @@ import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Alert } from
 import axios from 'axios';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { getAutoNotification, addAutoMaintenance, editMaintenance } from '../api/maintenance';
+import { getAnnouncement } from '../api/announcement'; // Import the getAnnouncement function
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
+import announcement from '../assets/announcement.jpg'; // Import image
+
+
+
 
 const DemoScreen = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifData, setNotifData] = useState([]);
+  const [announcements, setAnnouncements] = useState([]); // State for announcements
   const navigation = useNavigation();
   const route = useRoute();
   const combinedData = route.params?.combinedData || {};
@@ -16,9 +22,6 @@ const DemoScreen = () => {
   const demoData = combinedData.demoData || {};
 
   const { id, fname, lname, photo } = userData;
-
-
-
 
   const fetchNotifications = async () => {
     try {
@@ -33,16 +36,26 @@ const DemoScreen = () => {
     }
   };
 
+  const fetchAnnouncements = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if(token){
+        const data = await getAnnouncement(token);
+        setAnnouncements(data);
+      }   
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchNotifications();
+      fetchAnnouncements(); // Fetch announcements when the screen is focused
     }, [])
   );
 
-  const toggleMenu = ()  => {
-
-
-
+  const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
@@ -109,8 +122,7 @@ const DemoScreen = () => {
     );
   };
 
-  
-  const renderItem = ({ item }) => (
+  const renderNotificationItem = ({ item }) => (
     <View style={styles.item}>
       <Text style={styles.itemTitle}>{item.title}</Text>
       <Text style={styles.itemDescription}>{item.description}</Text>
@@ -121,6 +133,19 @@ const DemoScreen = () => {
         <TouchableOpacity style={styles.declineButton} onPress={() => handleDecline(item)}>
           <Text style={styles.buttonText}>Decline</Text>
         </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderAnnouncementItem = ({ item }) => (
+    <View style={styles.announcementItem}>
+      <Image
+        source={announcement} // Placeholder image from assets
+        style={styles.announcementImage}
+      />
+      <View style={styles.announcementTextContainer}>
+        <Text style={styles.announcementTitle}>{item.title}</Text>
+        <Text style={styles.announcementContent}>{item.content}</Text>
       </View>
     </View>
   );
@@ -169,9 +194,17 @@ const DemoScreen = () => {
       <View style={styles.content}>
         <FlatList
           data={notifData}
-          renderItem={renderItem}
+          renderItem={renderNotificationItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
+          ListHeaderComponent={() => (
+            <FlatList
+              data={announcements}
+              renderItem={renderAnnouncementItem}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={styles.listContent}
+            />
+          )}
         />
       </View>
     </View>
@@ -271,6 +304,40 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  announcementItem: {
+    flexDirection: 'row',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  announcementImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    marginRight: 20,
+  },
+  announcementTextContainer: {
+    flex: 1,
+  },
+  announcementTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  announcementContent: {
+    fontSize: 14,
+    color: '#666',
+    marginVertical: 10,
   },
 });
 
