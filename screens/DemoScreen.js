@@ -15,7 +15,10 @@ const DemoScreen = () => {
   const userData = combinedData.userData || {};
   const demoData = combinedData.demoData || {};
 
-  const { id, fname, lname } = userData;
+  const { id, fname, lname, photo } = userData;
+
+
+
 
   const fetchNotifications = async () => {
     try {
@@ -36,7 +39,10 @@ const DemoScreen = () => {
     }, [])
   );
 
-  const toggleMenu = () => {
+  const toggleMenu = ()  => {
+
+
+
     setMenuOpen(!menuOpen);
   };
 
@@ -103,6 +109,7 @@ const DemoScreen = () => {
     );
   };
 
+  
   const renderItem = ({ item }) => (
     <View style={styles.item}>
       <Text style={styles.itemTitle}>{item.title}</Text>
@@ -130,8 +137,8 @@ const DemoScreen = () => {
       {menuOpen && (
         <View style={styles.menu}>
           <View style={styles.profileContainer}>
-            <Image
-              source={{ uri: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
+            <Image 
+              source={{ uri: photo || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
               style={styles.profileImage}
             />
             <Text style={styles.profileName}>{fname} {lname}</Text>

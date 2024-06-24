@@ -29,3 +29,17 @@ export const editUser = async (token, updateData) => {
     );
     return response.data;
   };
+
+
+  export const uploadImage = async (image) => {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/v1/images/upload`,
+      image,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  }

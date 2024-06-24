@@ -99,8 +99,6 @@ const AcceptScreen = () => {
              //   userData: item.client, //navigate to maintenance screen 
               });
               
-            
-
               console.log('Submitted:', response);
             
             } catch (error) {
