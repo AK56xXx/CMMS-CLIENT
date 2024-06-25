@@ -8,14 +8,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import announcement from '../assets/announcement.jpg'; // Import image
 import { API_BASE_URL } from '../config';
-
-
-
+import { getUser } from '../api/client';
 
 const DemoScreen = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifData, setNotifData] = useState([]);
   const [announcements, setAnnouncements] = useState([]); // State for announcements
+  const [profileImageUri, setProfileImageUri] = useState('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png');
+  
   const navigation = useNavigation();
   const route = useRoute();
   const combinedData = route.params?.combinedData || {};
@@ -23,6 +23,12 @@ const DemoScreen = () => {
   const demoData = combinedData.demoData || {};
 
   const { id, fname, lname, photo } = userData;
+
+  useEffect(() => {
+    fetchNotifications();
+    fetchAnnouncements();
+    fetchProfileImage();
+  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -49,10 +55,29 @@ const DemoScreen = () => {
     }
   };
 
+  const fetchProfileImage = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        const user = await getUser(token, userData.id);
+        
+        if (user && user.photo) {
+          setProfileImageUri(user.photo);
+        } else {
+          console.error('Failed to fetch profile image: Invalid user data');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching profile image:', error);
+    }
+  };
+  
+
   useFocusEffect(
     useCallback(() => {
       fetchNotifications();
       fetchAnnouncements(); // Fetch announcements when the screen is focused
+      fetchProfileImage(); // Fetch profile image when the screen is focused
     }, [])
   );
 
@@ -164,7 +189,7 @@ const DemoScreen = () => {
         <View style={styles.menu}>
           <View style={styles.profileContainer}>
             <Image 
-              source={{ uri: /*photo*/ userData.photo || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
+              source={{ uri: profileImageUri }}
               style={styles.profileImage}
             />
             <Text style={styles.profileName}>{fname} {lname}</Text>

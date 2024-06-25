@@ -22,7 +22,7 @@ const LoginScreen = () => {
       await AsyncStorage.setItem('token', token);
       console.log('Token stored in AsyncStorage:', token);
 
-      const userDataResponse = await axios.get(`${API_BASE_URL}/users/token/${token}`, {
+      const userDataResponse = await axios.get(`${API_BASE_URL}/api/v1/users/token/${token}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
