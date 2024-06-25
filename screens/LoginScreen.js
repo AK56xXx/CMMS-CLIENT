@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import pura from '../assets/pura.jpeg'; // Import image
+import { API_BASE_URL } from '../config';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
@@ -16,17 +17,17 @@ const LoginScreen = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://192.168.1.2:8081/login', { username, password });
+      const response = await axios.post(`${API_BASE_URL}/login`, { username, password });
       const token = response.data.token;
       await AsyncStorage.setItem('token', token);
       console.log('Token stored in AsyncStorage:', token);
 
-      const userDataResponse = await axios.get(`http://192.168.1.2:8081/api/v1/users/token/${token}`, {
+      const userDataResponse = await axios.get(`${API_BASE_URL}/users/token/${token}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const userData = userDataResponse.data;
-      const demoResponse = await axios.get('http://192.168.1.2:8081/app/demo', {
+      const demoResponse = await axios.get(`${API_BASE_URL}/app/demo`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
