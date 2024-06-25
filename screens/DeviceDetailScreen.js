@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addTicket, getTickets, updateTicket, delTicket } from '../api/ticket';
 import { getProblems } from '../api/problem';
 import { Ionicons } from '@expo/vector-icons';
+import UVBOX from '../assets/UVBOX.png';
 
 const DeviceDetailScreen = () => {
   const route = useRoute();
@@ -122,7 +123,7 @@ const DeviceDetailScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: /*device.imageUrl*/ "https://www.tsm-int.com/wp-content/uploads/2020/07/UVBOX.png" }} style={styles.deviceImage} />
+      <Image source={UVBOX} style={styles.deviceImage} />
       <Text style={styles.deviceName}>{device.name}{device.id}</Text>
       <Text style={styles.deviceDescription}>{device.description}</Text>
       <Text>Serial: {device.serial}</Text>

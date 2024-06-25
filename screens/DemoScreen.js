@@ -7,6 +7,7 @@ import { getAnnouncement } from '../api/announcement'; // Import the getAnnounce
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import announcement from '../assets/announcement.jpg'; // Import image
+import { API_BASE_URL } from '../config';
 
 
 
@@ -61,7 +62,7 @@ const DemoScreen = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get('http://192.168.1.2:8081/logout');
+      const response = await axios.get(`${API_BASE_URL}/logout`);
       if (response.status === 200) {
         navigation.replace('Login', { screen: 'Login' });
       } else {
@@ -163,7 +164,7 @@ const DemoScreen = () => {
         <View style={styles.menu}>
           <View style={styles.profileContainer}>
             <Image 
-              source={{ uri: photo || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
+              source={{ uri: /*photo*/ userData.photo || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png' }}
               style={styles.profileImage}
             />
             <Text style={styles.profileName}>{fname} {lname}</Text>

@@ -7,7 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { editUser, getUser } from '../api/client';
 import mime from 'mime';
-import Menu from '../components/Menu';
+import { API_BASE_URL } from '../config';
 
 const ProfileScreen = () => {
   const route = useRoute();
@@ -73,7 +73,7 @@ const ProfileScreen = () => {
 
         try {
           const response = await axios.post(
-            'http://192.168.1.2:8081/api/v1/images/upload',
+            `${API_BASE_URL}/api/v1/images/upload`,
             formData,
             {
               headers: {

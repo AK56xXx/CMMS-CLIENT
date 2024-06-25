@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert, Image } from
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getDevices } from '../api/device';
+import UVBOX from '../assets/UVBOX.png';
 
 const DeviceScreen = () => {
   const [deviceList, setDeviceList] = useState([]);
@@ -28,7 +29,7 @@ const DeviceScreen = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.itemContainer} onPress={() => navigation.navigate('Device detail', { device: item })}>
-      <Image source={{ uri: /*item.imageUrl*/ "https://www.tsm-int.com/wp-content/uploads/2020/07/UVBOX.png" }} style={styles.deviceImage} />
+      <Image source={UVBOX} style={styles.deviceImage} />
       <View style={styles.deviceInfo}>
         <Text style={styles.deviceName}>{item.name}{item.id} </Text>
         <Text style={styles.deviceDescription}>{item.description}</Text>

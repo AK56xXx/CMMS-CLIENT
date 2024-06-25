@@ -16,11 +16,12 @@ export const login = async (username, password) => {
 };
 
 export const logout = async () => {
-  const response = await axios.get(`${API_BASE_URL}/logout`);
-  if (response.status === 200) {
-    await AsyncStorage.removeItem('token');
+  try {
+     await axios.get(`${API_BASE_URL}/logout`);
+    
+  } catch (error) {
+    console.error('Logout failed:', error);
   }
-  return response.status === 200;
 };
 
 export const getDemoData = async (token) => {
