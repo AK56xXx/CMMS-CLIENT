@@ -24,12 +24,6 @@ const DemoScreen = () => {
 
   const { id, fname, lname, photo } = userData;
 
-  useEffect(() => {
-    fetchNotifications();
-    fetchAnnouncements();
-    fetchProfileImage();
-  }, []);
-
   const fetchNotifications = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
